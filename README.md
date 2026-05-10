@@ -102,6 +102,7 @@ bash scripts/serve_frontend.sh
 
 ## Project Management
 
+*A screenshot of the board is also available at [`docs/scrum-board.png`]
 **Scrum Board (Trello):** [🔗 View our Trello Board](https://trello.com/b/JIxV6L3y/momo-dashboard?utm_source=eval-email&utm_medium=email&utm_campaign=board-invite)
 
 We follow Agile practices with weekly sprints. Tasks are tracked across **To Do → In Progress → Done** columns.
