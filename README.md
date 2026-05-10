@@ -6,7 +6,7 @@
 
 ## Team
 
-**Team Name:** [Your Team Name]
+**Team Name:** [Team Alpha]
 
 | Name | GitHub | Role |
 |------|--------|------|
