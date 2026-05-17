@@ -1,0 +1,97 @@
+{
+  "transactions": {
+    "transaction_id": 1,
+    "sms_id": 101,
+    "category_id": 2,
+    "financial_id": "FIN2024001",
+    "amount": 5000.00,
+    "fee": 0.00,
+    "currency": "RWF",
+    "direction": "IN",
+    "status": "completed",
+    "balance_after": 25000.00,
+    "transaction_datetime": "2024-11-14T12:00:00"
+  },
+
+  "transaction_categories": {
+    "category_id": 2,
+    "category_name": "incoming_money",
+    "description": "Money received from another MoMo user"
+  },
+
+  "contacts": {
+    "contact_id": 1,
+    "full_name": "Alice Mutoni",
+    "phone_number": "+250781234567",
+    "contact_type": "Person"
+  },
+
+  "system_logs": {
+    "log_id": 1,
+    "transaction_id": 1,
+    "sms_id": 101,
+    "action": "parse_xml",
+    "log_level": "INFO",
+    "message": "Record successfully parsed and loaded",
+    "created_at": "2024-11-14T12:01:00"
+  },
+
+  "sms_messages": {
+    "sms_id": 101,
+    "address": "+250781234567",
+    "body": "You have received 5,000 RWF from Alice Mutoni. Your new balance is 25,000 RWF.",
+    "contact_name": "Alice Mutoni"
+  },
+
+  "users": {
+    "user_id": 1,
+    "sub_name": "momo_user_001",
+    "phone_number": "+250789876543",
+    "email": "user@example.com",
+    "time_created": "2024-01-01T08:00:00"
+  },
+
+  "complete_transaction": {
+    "transaction_id": 1,
+    "financial_id": "FIN2024001",
+    "amount": 5000.00,
+    "currency": "RWF",
+    "direction": "IN",
+    "status": "completed",
+    "balance_after": 25000.00,
+    "transaction_datetime": "2024-11-14T12:00:00",
+
+    "category": {
+      "category_id": 2,
+      "category_name": "incoming_money",
+      "description": "Money received from another MoMo user"
+    },
+
+    "sender": {
+      "contact_id": 3,
+      "full_name": "Alice Mutoni",
+      "phone_number": "+250781234567",
+      "contact_type": "Person"
+    },
+
+    "receiver": {
+      "contact_id": 1,
+      "full_name": "Martha Kanogo",
+      "phone_number": "+250789876543",
+      "contact_type": "Person"
+    },
+
+    "sms": {
+      "sms_id": 101,
+      "body": "You have received 5,000 RWF from Alice Mutoni. Your new balance is 25,000 RWF.",
+      "contact_name": "Alice Mutoni"
+    },
+
+    "log": {
+      "log_id": 1,
+      "log_level": "INFO",
+      "message": "Record successfully parsed and loaded",
+      "created_at": "2024-11-14T12:01:00"
+    }
+  }
+}
