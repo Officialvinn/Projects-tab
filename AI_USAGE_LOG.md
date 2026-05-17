@@ -19,9 +19,8 @@ This document records all AI tool interactions in line with the course AI usage 
 | Date | Tool | Used By | Purpose | What Was Changed |
 |------|------|---------|---------|-----------------|
 | 2026-05-17 | Claude AI | Chance | Refining and reviewing the ERD diagram | AI was used to check formatting and suggest layout improvements only — all entities, attributes, relationships and cardinality were designed independently by the team |
-| 2026-05-17 | Claude AI | Stacey | Grammar checking on README documentation | Rewrote all explanations in own words |
+| 2026-05-17 | Claude AI | Team | Grammar checking on README documentation | Rewrote all explanations in own words |
 | 2026-05-17 | Claude AI | Stacey | Syntax verification of JSON structure | Verified JSON formatting was valid, logic written independently |
-| 2026-05-17 | Claude AI | Stacey | Research on JSON best practices for API responses | Used as reference only, all schemas designed from our own ERD |
 
 ---
 
