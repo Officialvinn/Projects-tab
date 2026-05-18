@@ -21,6 +21,7 @@ This document records all AI tool interactions in line with the course AI usage 
 | 2026-05-17 | Claude AI | Chance | Refining and reviewing the ERD diagram | AI was used to check formatting and suggest layout improvements only — all entities, attributes, relationships and cardinality were designed independently by the team |
 | 2026-05-17 | Claude AI | Team | Grammar checking on README documentation | Rewrote all explanations in own words |
 | 2026-05-17 | Claude AI | Stacey | Syntax verification of JSON structure | Verified JSON formatting was valid, logic written independently |
+| 2026-05-18 | Claude AI | Alvin | SQL database implementation (database_setup.sql) | Worked through the schema interactively: AI explained MySQL concepts (ENUM, CHECK constraints, foreign keys, AUTO_INCREMENT, DECIMAL for currency, indexing). Early tables were drafted by me and AI corrected my syntax errors.
 
 ---
 
@@ -32,4 +33,4 @@ AI tools were used only to refine presentation, verify formatting, and check gra
 
 ---
 
-*Last updated: 17 May 2026*
+*Last updated: 18 May 2026*
