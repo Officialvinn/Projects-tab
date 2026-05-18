@@ -5,8 +5,25 @@
 -- ============================================================
 -- This script creates the full database schema, inserts sample
 -- data, and builds indexes for performance.
--- Run order: CREATE TABLEs -> INSERT data -> CREATE INDEXes
+-- Run order: DROP tables -> CREATE TABLEs -> INSERT data -> CREATE INDEXes
+-- The script is safe to re-run: it drops existing tables first.
 -- ============================================================
+
+
+-- ============================================================
+-- SECTION 0: CLEAN SLATE
+-- Drop existing tables in reverse dependency order so the
+-- script can be run repeatedly without "table already exists"
+-- errors. IF EXISTS makes this safe even on the first run.
+-- ============================================================
+DROP TABLE IF EXISTS system_logs;
+DROP TABLE IF EXISTS transaction_participants;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS sms_messages;
+DROP TABLE IF EXISTS sms_backups;
+DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS transaction_categories;
+DROP TABLE IF EXISTS users;
 
 
 -- ============================================================
@@ -18,7 +35,8 @@
 
 -- ---------- TABLE 1: USERS ----------
 -- The MoMo account owners.
-CREATE TABLE users (    user_id INT AUTO_INCREMENT,
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT,
     full_name VARCHAR(100) NOT NULL COMMENT 'Full name of the account owner',
     email VARCHAR(100) NOT NULL UNIQUE COMMENT 'Unique email address',
     phone_number VARCHAR(20) NOT NULL COMMENT 'User mobile number in international format',
