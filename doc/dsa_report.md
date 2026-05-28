@@ -1,79 +1,148 @@
 # DSA Report: Linear Search vs Dictionary Lookup
+## MoMo SMS Data — Student 1
+
+---
 
 ## 1. Introduction
 
-This report compares two approaches to searching SMS records extracted from the MoMo SMS dataset: linear search and dictionary lookup. Both were implemented in Python and benchmarked to measure real performance differences.
+This report documents the implementation and comparison of two search approaches applied to a real MoMo SMS dataset: linear search and dictionary lookup. Both were implemented in Python, tested against 1,691 SMS records parsed from `modified_sms_v2.xml`, and benchmarked to measure real performance differences.
 
-## 2. Data Structure Overview
+The goal was to understand how data structure choice affects search speed, and to reflect on which approach is more suitable for this dataset.
 
-The SMS records were parsed from an XML file (modified_sms_v2.xml) and stored as a list of Python dictionaries. Each record contains:
-- address  : the phone number
-- date     : Unix timestamp of the message
-- body     : the SMS text content
-- type     : 1 (received) or 2 (sent)
+---
+
+## 2. Dataset Overview
+
+The SMS records were parsed from `modified_sms_v2.xml` — a backup of MTN MoMo SMS messages — using Python's built-in `xml.etree.ElementTree` library.
+
+Key findings during parsing:
+- Total SMS records in file  : 1,693
+- Successfully parsed        : 1,691
+- Skipped (missing fields)   : 2
+
+Each parsed record was stored as a Python dictionary with these fields:
+
+| Field            | Description                          | Example                        |
+|------------------|--------------------------------------|--------------------------------|
+| address          | SMS sender name                      | M-Money                        |
+| date             | Unix timestamp (milliseconds)        | 1715351458724                  |
+| readable_date    | Human-readable date and time         | 10 May 2024 4:30:58 PM         |
+| type             | Message type (1 = received)          | 1                              |
+| transaction_id   | Extracted transaction ID from body   | 76662021700                    |
+| body             | Full SMS text content                | You have received 2000 RWF...  |
+
+### Important discovery about the address field
+
+Every single SMS record has `address="M-Money"` — the sender is always MTN MoMo, not individual phone numbers. This made the address field useless as a unique search key.
+
+Instead, transaction IDs were extracted from the body text using Python's `re` (regular expressions) module. Two body formats were handled:
+
+- Format 1: `TxId: 73214484437. Your payment...`
+- Format 2: `Financial Transaction Id: 76662021700.`
+
+Out of 1,691 records:
+- Records WITH a transaction ID  : 823
+- Records WITHOUT a transaction ID: 868
+
+Records without a transaction ID are transfer-type messages (e.g. `*165*S*` format) that contain no TxId in their body text.
+
+---
 
 ## 3. Linear Search
 
-### How it works
-Linear search iterates through every record in the list from index 0 to the last index, comparing each record's address to the target. It stops when a match is found, or returns an empty list if no match exists after checking all records.
+### Implementation
+
+Linear search is implemented in `dsa/linear_search.py`. It loops through every record in the list from index 0 to the last index,comparing each record's `transaction_id` field to the target value. It returns the matching record immediately when found, or `None` if no match exists after checking all records.
 
 ### Time Complexity: O(n)
-- Best case:  the target is at index 0 — 1 comparison
-- Worst case: the target is at the last index — n comparisons
-- Average:    n/2 comparisons
 
-As the dataset grows, search time grows proportionally. With 10,000 records, worst-case requires 10,000 comparisons.
+- Best case  : target is at index 0 — 1 comparison needed
+- Worst case : target is at the last index — n comparisons needed
+- Average    : n/2 comparisons
+
+In our benchmark we deliberately tested the worst case — the target transaction ID was at index 1,690 out of 1,691 records. Linear search had to compare every single record before finding it.
 
 ### Advantages
 - Simple to understand and implement
 - No setup cost — works directly on any list
-- Good for small datasets or one-time searches
+- Suitable for small datasets or one-time searches
 
 ### Disadvantages
 - Slow for large datasets
-- Must restart from index 0 for every new search
+- Performance degrades as the dataset grows
+- Must restart from index 0 for every new search query
+
+---
 
 ## 4. Dictionary Lookup
 
-### How it works
-Before searching, we build a dictionary index where each key is a phone address and each value is a list of all SMS records from that address. Lookup then uses Python's dict.get() to retrieve records in constant time.
+### Implementation
+
+Dictionary lookup is implemented in `dsa/dictionary_lookup.py`. Before any searching can happen, a dictionary index is built once by looping through all records and storing each one under its transaction ID as the key. After that, any lookup is done with a single `dict.get()` call.
 
 ### Time Complexity
-- Building the index: O(n) — one-time cost
-- Each lookup after that: O(1) — constant time
 
-A dictionary uses a hash map internally. Python converts the key to a hash (an integer), then uses that hash to jump directly to the correct memory location. No iteration is needed.
+- Building the index : O(n) — one-time cost paid before first lookup
+- Each lookup        : O(1) — constant time regardless of dataset size
+
+Python dictionaries use a hash map internally. When you call `dict.get(key)`, Python converts the key into a number called a hash, then uses that number to jump directly to the correct memory location. No iteration over records is needed at all.
 
 ### Advantages
 - Extremely fast after the index is built
-- Scales well — performance does not degrade as dataset grows
-- Ideal for repeated lookups on the same dataset
+- Performance does not degrade as the dataset grows
+- Ideal when the same dataset is searched many times
 
 ### Disadvantages
-- Requires extra memory to store the index
-- One-time O(n) build cost before first lookup
-- Not ideal if you only need to search once on a small list
+- Requires extra memory to store the index structure
+- One-time O(n) build cost must happen before the first lookup
+- Only indexes records that have a transaction ID (823 out of 1,691)
+- Not worth the setup cost if you only need to search once
+
+---
 
 ## 5. Benchmark Results
 
-| Method            | Average Time (ms) | Complexity |
-|-------------------|-------------------|------------|
-| Linear search     | ~0.045            | O(n)       |
-| Dictionary lookup | ~0.0003           | O(1)       |
-| Speedup factor    | ~150x faster      |            |
+Benchmarks were run on 1,691 records with 500 repetitions each. The search target was TxId `37832903831` located at index 1,690 — deliberately chosen as the worst case for linear search.
 
-(Results based on 47 SMS records, 500 repetitions each. Results will vary by machine and dataset size.)
+| Method                  | Average time per search | Complexity |
+|-------------------------|-------------------------|------------|
+| Linear search           | 0.273603 ms             | O(n)       |
+| Dictionary lookup       | 0.000080 ms             | O(1)       |
+| One-time build cost     | 0.1779 ms               | O(n)       |
+| Speedup factor          | ~3,424x faster          |            |
+
+### How to read these results
+
+Linear search took 0.273603 ms on average because it scanned up to 1,691 records every single time. Dictionary lookup took 0.000080 ms because it jumped directly to the result using the hash of the key.
+
+The one-time build cost of 0.1779 ms is paid only once when the program starts. After that, every subsequent lookup costs only 0.000080 ms. If you perform even 2 lookups, the dictionary has already recovered its build cost many times over.
+
+---
 
 ## 6. Reflection
 
-Implementing both approaches showed clearly why choosing the right data structure matters. For the MoMo SMS dataset, if repeated lookups are needed (for example, building a report per phone number), building the dictionary index once and looking up many times is dramatically more efficient.
+Implementing both approaches on real MoMo SMS data revealed several practical lessons beyond textbook theory.
 
-Linear search is not useless — it is perfectly fine for small or one-time queries, and it requires no setup. But at scale, even a modest improvement in lookup speed compounds into significant savings.
+First, data structure matters more than algorithm cleverness. The dictionary lookup is not a complex algorithm — it is simply choosing the right data structure (a hash map) for the problem. That single choice made lookups 3,424 times faster than linear search.
 
-## 7. Alternative Improvement: Binary Search
+Second, real data is messy. The original plan was to search by phone address, but the dataset had `address="M-Money"` for every record — meaning the address field was not useful as a unique identifier. This required adapting the approach mid-way: extracting transaction IDs from the SMS body text using regular expressions. This kind of adaptation is normal in real software development.
 
-If the records were sorted by address, binary search (O(log n)) could be used instead of linear search. Binary search repeatedly halves the search space, making it much faster than O(n) but still slower than O(1) dictionary lookup. It would be a good choice when memory is limited and sorting the data upfront is acceptable.
+Third, not every record is searchable. Only 823 of 1,691 records contained a transaction ID. The remaining 868 were transfer-type messages in a different format. A production system would need to handle those separately, perhaps with a different parsing strategy.
+
+---
+
+## 7. Alternative: Binary Search
+
+If the records were sorted by transaction ID, binary search (O(log n)) could replace linear search. Binary search works by repeatedly halving the search space — checking the middle record, then searching only the left or right half depending on whether the target is smaller or larger.
+
+For 1,691 records, binary search would need at most 11 comparisons (log₂ 1691 ≈ 11) compared to linear search's worst case of 1,691 comparisons. However, it still cannot match dictionary lookup's O(1) constant time. Binary search would be a good middle ground when memory is limited and sorting the data upfront is acceptable.
+
+---
 
 ## 8. Conclusion
 
-Dictionary lookup is the recommended approach for repeated searches on the MoMo SMS dataset. The one-time O(n) cost of building the index is justified by the O(1) speed of all subsequent lookups. Linear search remains useful for simple, occasional queries on small datasets.
+Dictionary lookup is the strongly recommended approach for repeated searches on the MoMo SMS dataset. The one-time O(n) build cost of 0.1779 ms is negligible compared to the 3,424x speed improvement on every subsequent lookup.
+
+Linear search remains useful for simple, one-time queries on small datasets where setup cost is not justified. For a dataset of 1,691 records that will be searched many times — such as generating per-transaction reports or fraud detection — the dictionary approach is clearly superior.
+
+---
