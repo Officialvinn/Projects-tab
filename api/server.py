@@ -1,5 +1,5 @@
 from http.server import HTTPServer
-from api.routes import MoMoRequestHandler
+from routes import MoMoRequestHandler
 import json
 import sys
 import os
