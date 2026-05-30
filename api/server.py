@@ -1,13 +1,11 @@
+# api/server.py
+"""
+Start the MoMo REST API server.
+Run from the repo root with:  python -m api.server
+"""
 from http.server import HTTPServer
-from routes import MoMoRequestHandler
-import json
-import sys
-import os
+from api.routes import MoMoRequestHandler
 
-# Add parent directory to path so imports work
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from routes import MoMoRequestHandler
 
 HOST = "localhost"
 PORT = 8000
@@ -15,12 +13,12 @@ PORT = 8000
 
 def run():
     server = HTTPServer((HOST, PORT), MoMoRequestHandler)
-    print(f" MoMo API running at http://{HOST}:{PORT}")
+    print(f"MoMo API running at http://{HOST}:{PORT}")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n Server stopped.")
+        print("\nServer stopped.")
         server.server_close()
 
 
